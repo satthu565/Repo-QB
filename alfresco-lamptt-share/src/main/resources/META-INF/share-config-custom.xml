@@ -1,0 +1,1251 @@
+<alfresco-config>
+	<!-- Global config section -->
+	<config replace="true">
+		<flags>
+			<!-- Developer debugging setting to turn on DEBUG mode for client scripts 
+				in the browser -->
+			<client-debug>true</client-debug>
+			<!-- LOGGING can always be toggled at runtime when in DEBUG mode (Ctrl, 
+				Ctrl, Shift, Shift). This flag automatically activates logging on page load. -->
+			<client-debug-autologging>false</client-debug-autologging>
+		</flags>
+		<header>
+         <app-items>
+            <!-- defaults: icon="{id}.png" label="header.{id}.label" description="header.{id}.description" -->
+            <item type="link" id="my-dashboard">{userdashboardpage}</item>
+            <item type="js" id="sites">Alfresco.module.Sites</item>
+            <item type="link" id="people">/people-finder</item>
+            <item type="link" id="repository" condition="conditionRepositoryRootNode">/repository</item>
+            <item type="link" id="report" >/reportQuangBinh</item>
+            <item type="container" id="more">
+               <container-group id="my">
+                  <item type="link" id="my-tasks">/my-tasks#filter=workflows|active</item>
+                  <item type="link" id="my-workflows">/my-workflows#filter=workflows|active</item>
+                  <item type="link" id="my-content">/user/user-content</item>
+                  <item type="link" id="my-sites">/user/user-sites</item>
+                  <item type="link" id="my-profile">{userprofilepage}</item>
+               </container-group>
+               <container-group id="tools" permission="admin">
+                  <item type="link" id="application">/console/admin-console/application</item>
+                  <item type="link" id="groups">/console/admin-console/groups</item>
+                  <item type="link" id="replication-jobs" condition="!conditionEditionTeam">/console/admin-console/replication-jobs</item>
+                  <item type="link" id="repository">/console/admin-console/repository</item>
+                  <item type="link" id="trashcan">/console/admin-console/trashcan</item>
+                  <item type="link" id="users">/console/admin-console/users</item>
+                  <item type="link" id="more">/console/admin-console/</item>
+               </container-group>
+            </item>
+         </app-items>
+         <user-items>
+            <item type="container" id="user" icon="" description="">
+               <container-group id="usermenu" label="">
+                  <item type="user" id="status">{userprofilepage}</item>
+                  <item type="link" id="my-profile">{userprofilepage}</item>
+                  <item type="link" id="change-password" condition="user.capabilities.isMutable">/user/change-password</item>
+                  <item type="external-link" id="help">{share-help}</item>
+                  <item type="link" id="logout" condition="!context.externalAuthentication">/dologout</item>
+               </container-group>
+            </item>
+         </user-items>
+         <dependencies>
+            <css src="/modules/create-site.css" />
+            <css src="/modules/header/sites.css" />
+            <js src="/modules/create-site.js" />
+            <js src="/modules/header/sites.js" />
+         </dependencies>
+      </header>
+	</config>
+	<config evaluator="string-compare" condition="WebFramework">
+		<web-framework>
+			<!-- SpringSurf Autowire Runtime Settings -->
+			<!-- Developers can set mode to 'development' to disable; SpringSurf caches, 
+				FreeMarker template caching and Rhino JavaScript compilation. -->
+			<autowire>
+				<!-- Pick the mode: "production" or "development" -->
+				<mode>development</mode>
+			</autowire>
+			<!-- Allows extension modules with <auto-deploy> set to true to be automatically 
+				deployed -->
+			<module-deployment>
+				<mode>manual</mode>
+				<enable-auto-deploy-modules>true</enable-auto-deploy-modules>
+			</module-deployment>
+		</web-framework>
+	</config>
+	<config evaluator="string-compare" condition="Remote">
+		<remote>
+			<endpoint>
+				<id>alfresco-noauth</id>
+				<name>Alfresco - unauthenticated access</name>
+				<description>Access to Alfresco Repository WebScripts that do not
+					require authentication
+				</description>
+				<connector-id>alfresco</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/s</endpoint-url>
+				<identity>none</identity>
+			</endpoint>
+
+			<endpoint>
+				<id>alfresco</id>
+				<name>Alfresco - user access</name>
+				<description>Access to Alfresco Repository WebScripts that require
+					user authentication
+				</description>
+				<connector-id>alfresco</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/s</endpoint-url>
+				<identity>user</identity>
+			</endpoint>
+
+			<endpoint>
+				<id>alfresco-feed</id>
+				<name>Alfresco Feed</name>
+				<description>Alfresco Feed - supports basic HTTP authentication via
+					the EndPointProxyServlet
+				</description>
+				<connector-id>http</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/s</endpoint-url>
+				<basic-auth>true</basic-auth>
+				<identity>user</identity>
+			</endpoint>
+
+			<endpoint>
+				<id>activiti-admin</id>
+				<name>Activiti Admin UI - user access</name>
+				<description>Access to Activiti Admin UI, that requires user
+					authentication
+				</description>
+				<connector-id>activiti-admin-connector</connector-id>
+				<endpoint-url>http://localhost:8080/alfresco/activiti-admin
+				</endpoint-url>
+				<identity>user</identity>
+			</endpoint>
+		</remote>
+	</config>
+	
+	
+	<!-- Document Library Actions config section -->
+	<config evaluator="string-compare" condition="DocLibActions">
+		<!--Action definitions -->
+		<actions>
+			<!-- Publish document -->
+			<action id="document-publish" type="javascript" label="actions.document.publish">
+
+				<param name="function">onActionPublish</param>
+
+				<!--Evaluator to disable Pulish Document Action for all users. -->
+				<evaluator>evaluator.doclib.action.disableAction</evaluator>
+				<evaluator negate="true"> evaluator.doclib.action.isLocked
+				</evaluator>
+			</action>
+		</actions>
+	</config>
+
+	<config evaluator="string-compare" condition="AdvancedSearch">
+		<advanced-search>
+			<forms>
+				<form label="Văn bản" description="Tìm kiếm văn bản">
+					la:t1
+				</form>
+				<form label="Hồ sơ" description="Tìm kiếm hồ sơ">
+					la:fo1
+				</form>
+				<form label="Hộp số" description="Tìm kiếm hộp số">
+					la:fo2
+				</form>
+				<form label="Phông" description="Tìm kiếm phông">
+					la:fo3
+				</form>
+				<form label="Cơ quan lưu trữ" description="Tìm kiếm cơ quan lưu trữ">
+					la:fo4
+				</form>
+			</forms>
+		</advanced-search>
+	</config>
+	<config evaluator="string-compare" condition="DocumentLibrary">
+		<types>
+			<type name="cm:content">
+				<subtype name="la:t1" />
+			</type>
+			<type name="cm:folder">
+				<subtype name="la:fo1" />
+				<subtype name="la:fo2" />
+				<subtype name="la:fo3" />
+				<subtype name="la:fo4" />
+			</type>
+		</types>
+		<aspects>
+			<visible>
+			</visible>
+			<addable>
+			</addable>
+			<removeable>
+			</removeable>
+		</aspects>
+		<create-content>
+			<content id="entity1" label="Hồ sơ" type="pagelink" index="170"
+				icon="entity">
+				<param name="page">create-content?destination={nodeRef}&amp;itemId=la:fo1&amp;formId=create-entity&amp;isEntity=true
+				</param>
+			</content>
+			<content id="entity2" label="Hộp số" type="pagelink" index="171"
+				icon="entity">
+				<param name="page">create-content?destination={nodeRef}&amp;itemId=la:fo2&amp;formId=create-entity&amp;isEntity=true
+				</param>
+			</content>
+			<content id="entity3" label="Phông" type="pagelink" index="172"
+				icon="entity">
+				<param name="page">create-content?destination={nodeRef}&amp;itemId=la:fo3&amp;formId=create-entity&amp;isEntity=true
+				</param>
+			</content>
+			<content id="entity4" label="Cơ quan" type="pagelink" index="173"
+				icon="entity">
+				<param name="page">create-content?destination={nodeRef}&amp;itemId=la:fo4&amp;formId=create-entity&amp;isEntity=true
+				</param>
+			</content>
+		</create-content>
+	</config>
+
+	<!-- Văn bản -->
+	<config evaluator="node-type" condition="la:t1">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="la:numberofpage" />
+					<show id="la:t1p7" /><!-- Tên loại -->
+					<show id="la:t1p8" /><!-- Số và ký hiệu -->
+					<show id="la:t1p10" /><!-- Tác giả -->
+
+					<show id="la:t1p36" /><!-- Thời gian(đầy đủ) -->
+					<show id="la:t1p37" /><!-- Thời gian(không có ngày) -->
+					<show id="la:t1p38" /><!-- Thời gian(không có ngày và tháng) -->
+
+					<show id="la:t1p11" /><!-- Trích yếu nội dung -->
+
+					<show id="la:t1p41" /><!-- Tờ số -->
+					<show id="la:t1p42" /><!-- Số lượng tờ -->
+
+					<show id="la:t1p12" /><!-- Ký hiệu thông tin -->
+					<show id="la:t1p13" /><!-- Độ mật -->
+					<show id="la:t1p19" /><!-- Mức độ tin cậy -->
+					<show id="la:t1p15" /><!-- Ngôn ngữ -->
+					<show id="la:t1p16" /><!-- Bút tích -->
+					<show id="la:t1p20" /><!-- Tình trạng vật lý -->
+
+					<show id="la:t1p21" /><!-- Chế độ sử dụng -->
+
+					<show id="la:t1p18" /><!-- Ghi chú -->
+
+
+				</field-visibility>
+				<appearance>
+					<field id="la:t1p7">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tenloai
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p10">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tacgia
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p11"  mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p18">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p8" mandatory="true"/>
+				</appearance>
+			</form>
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="la:numberofpage" />
+					<show id="la:t1p7" /><!-- Tên loại -->
+					<show id="la:t1p8" /><!-- Số và ký hiệu -->
+					<show id="la:t1p10" /><!-- Tác giả -->
+
+					<show id="la:t1p36" /><!-- Thời gian(đầy đủ) -->
+					<show id="la:t1p37" /><!-- Thời gian(không có ngày) -->
+					<show id="la:t1p38" /><!-- Thời gian(không có ngày và tháng) -->
+
+					<show id="la:t1p11" /><!-- Trích yếu nội dung -->
+
+					<show id="la:t1p41" /><!-- Tờ số -->
+					<show id="la:t1p42" /><!-- Số lượng tờ -->
+
+					<show id="la:t1p12" /><!-- Ký hiệu thông tin -->
+					<show id="la:t1p13" /><!-- Độ mật -->
+					<show id="la:t1p19" /><!-- Mức độ tin cậy -->
+					<show id="la:t1p15" /><!-- Ngôn ngữ -->
+					<show id="la:t1p16" /><!-- Bút tích -->
+					<show id="la:t1p20" /><!-- Tình trạng vật lý -->
+
+					<show id="la:t1p21" /><!-- Chế độ sử dụng -->
+
+					<show id="la:t1p18" /><!-- Ghi chú -->
+
+
+				</field-visibility>
+				<appearance>
+					<field id="la:t1p7">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tenloai
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p10">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tacgia
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p11"  mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p18">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p8" mandatory="true"/>
+				</appearance>
+			</form>
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="la:numberofpage" />
+					<show id="la:t1p7" /><!-- Tên loại -->
+					<show id="la:t1p8" /><!-- Số và ký hiệu -->
+					<show id="la:t1p10" /><!-- Tác giả -->
+
+					<show id="la:t1p36" /><!-- Thời gian(đầy đủ) -->
+					<show id="la:t1p37" /><!-- Thời gian(không có ngày) -->
+					<show id="la:t1p38" /><!-- Thời gian(không có ngày và tháng) -->
+
+					<show id="la:t1p11" /><!-- Trích yếu nội dung -->
+
+					<show id="la:t1p41" /><!-- Tờ số -->
+					<show id="la:t1p42" /><!-- Số lượng tờ -->
+
+					<show id="la:t1p12" /><!-- Ký hiệu thông tin -->
+					<show id="la:t1p13" /><!-- Độ mật -->
+					<show id="la:t1p19" /><!-- Mức độ tin cậy -->
+					<show id="la:t1p15" /><!-- Ngôn ngữ -->
+					<show id="la:t1p16" /><!-- Bút tích -->
+					<show id="la:t1p20" /><!-- Tình trạng vật lý -->
+
+					<show id="la:t1p21" /><!-- Chế độ sử dụng -->
+
+					<show id="la:t1p18" /><!-- Ghi chú -->
+
+
+				</field-visibility>
+				<appearance>
+					<field id="la:t1p7">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tenloai
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p10">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tacgia
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p11"  mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p18">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p8" mandatory="true"/>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="model-type" condition="la:t1">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="la:numberofpage" force="true" />
+					<show id="la:t1p7" force="true" /><!-- Tên loại -->
+					<show id="la:t1p8" force="true" /><!-- Số và ký hiệu -->
+					<show id="la:t1p10" force="true" /><!-- Tác giả -->
+
+					<show id="la:t1p36" force="true" /><!-- Thời gian(đầy đủ) -->
+					<show id="la:t1p37" force="true" /><!-- Thời gian(không có ngày) -->
+					<show id="la:t1p38" force="true" /><!-- Thời gian(không có ngày 
+						và tháng) -->
+
+					<show id="la:t1p11" force="true" /><!-- Trích yếu nội dung -->
+
+					<show id="la:t1p41" force="true" /><!-- Tờ số -->
+					<show id="la:t1p42" force="true" /><!-- Số lượng tờ -->
+
+					<show id="la:t1p12" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="la:t1p13" force="true" /><!-- Độ mật -->
+					<show id="la:t1p19" force="true" /><!-- Mức độ tin cậy -->
+					<show id="la:t1p15" force="true" /><!-- Ngôn ngữ -->
+					<show id="la:t1p16" force="true" /><!-- Bút tích -->
+					<show id="la:t1p20" force="true" /><!-- Tình trạng vật lý -->
+
+					<show id="la:t1p21" force="true" /><!-- Chế độ sử dụng -->
+
+					<show id="la:t1p18" force="true" /><!-- Ghi chú -->
+				</field-visibility>
+				<appearance>
+					<field id="la:t1p7">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tenloai
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p10">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/tacgia
+							</control-param>
+						</control>
+					</field>
+					<field id="la:t1p11"  mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p18">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p8" mandatory="true"/>
+				</appearance>
+			</form>
+			<form id="search">
+				<field-visibility>
+					<show id="searchInFolder" force="true" />
+					<show id="cm:name" />
+					<show id="la:numberofpage" force="true" />
+					<show id="la:t1p7" force="true" /><!-- Tên loại -->
+					<show id="la:t1p8" force="true" /><!-- Số và ký hiệu -->
+					<show id="la:t1p10" force="true" /><!-- Tác giả -->
+
+					<show id="la:t1p36" force="true" /><!-- Thời gian(đầy đủ) -->
+					<show id="la:t1p37" force="true" /><!-- Thời gian(không có ngày) -->
+					<show id="la:t1p38" force="true" /><!-- Thời gian(không có ngày 
+						và tháng) -->
+
+					<show id="la:t1p11" force="true" /><!-- Trích yếu nội dung -->
+
+					<show id="la:t1p41" force="true" /><!-- Tờ số -->
+					<show id="la:t1p42" force="true" /><!-- Số lượng tờ -->
+
+					<show id="la:t1p12" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="la:t1p13" force="true" /><!-- Độ mật -->
+					<show id="la:t1p19" force="true" /><!-- Mức độ tin cậy -->
+					<show id="la:t1p15" force="true" /><!-- Ngôn ngữ -->
+					<show id="la:t1p16" force="true" /><!-- Bút tích -->
+					<show id="la:t1p20" force="true" /><!-- Tình trạng vật lý -->
+
+					<show id="la:t1p21" force="true" /><!-- Chế độ sử dụng -->
+
+					<show id="la:t1p18" force="true" /><!-- Ghi chú -->
+				</field-visibility>
+				<appearance>
+					<field id="searchInFolder" label="Tìm trong thư mục">
+						<control template="/org/alfresco/components/form/controls/association.ftl" />
+					</field>
+					<field id="la:t1p7">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p8">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p10">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p12">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p11">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p13">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p19">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p15">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p16">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p20">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:t1p18">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:t1p21">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+
+					<field id="la:t1p36">
+						<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+					</field>
+					<field id="la:t1p37">
+						<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+					</field>
+					<field id="la:t1p38">
+						<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+					</field>
+
+					<field id="la:t1p41">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+					<field id="la:t1p42">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<!-- End Văn bản -->
+
+	<!-- Hồ sơ -->
+	<config evaluator="node-type" condition="la:fo1">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo1p1" /><!-- Mục lục số -->
+					<show id="la:fo1p2" /><!-- Chú giải -->
+					<show id="la:fo1p3" /><!-- Thời gian bắt đầu -->
+					<show id="la:fo1p4" /><!-- Thời gian kết thúc -->
+					<show id="la:fo1p5" /><!-- Ngôn ngữ -->
+					<show id="la:fo1p6" /><!-- Bút tích -->
+					<show id="la:fo1p41" /><!-- Số lượng tờ -->
+					<show id="la:fo1p7" /><!-- Thời hạn bảo quản -->
+					<show id="la:fo1p8" /><!-- Chế độ sử dụng -->
+					<show id="la:fo1p9" /><!-- Tình trạng vật lý -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Hồ sơ số">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Ký hiệu thông tin">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Tiêu đề hồ sơ" mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p1">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/muclucso
+							</control-param>
+						</control>
+					</field>
+					<field id="la:fo1p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p9">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo1p1" /><!-- Mục lục số -->
+					<show id="la:fo1p2" /><!-- Chú giải -->
+					<show id="la:fo1p3" /><!-- Thời gian bắt đầu -->
+					<show id="la:fo1p4" /><!-- Thời gian kết thúc -->
+					<show id="la:fo1p5" /><!-- Ngôn ngữ -->
+					<show id="la:fo1p6" /><!-- Bút tích -->
+					<show id="la:fo1p41" /><!-- Số lượng tờ -->
+					<show id="la:fo1p7" /><!-- Thời hạn bảo quản -->
+					<show id="la:fo1p8" /><!-- Chế độ sử dụng -->
+					<show id="la:fo1p9" /><!-- Tình trạng vật lý -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Hồ sơ số">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Ký hiệu thông tin">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Tiêu đề hồ sơ" mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p1">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/muclucso
+							</control-param>
+						</control>
+					</field>
+					<field id="la:fo1p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p9">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo1p1" /><!-- Mục lục số -->
+					<show id="la:fo1p2" /><!-- Chú giải -->
+					<show id="la:fo1p3" /><!-- Thời gian bắt đầu -->
+					<show id="la:fo1p4" /><!-- Thời gian kết thúc -->
+					<show id="la:fo1p5" /><!-- Ngôn ngữ -->
+					<show id="la:fo1p6" /><!-- Bút tích -->
+					<show id="la:fo1p41" /><!-- Số lượng tờ -->
+					<show id="la:fo1p7" /><!-- Thời hạn bảo quản -->
+					<show id="la:fo1p8" /><!-- Chế độ sử dụng -->
+					<show id="la:fo1p9" /><!-- Tình trạng vật lý -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Hồ sơ số">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Ký hiệu thông tin">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Tiêu đề hồ sơ" mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p1">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/muclucso
+							</control-param>
+						</control>
+					</field>
+					<field id="la:fo1p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p9">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="model-type" condition="la:fo1">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo1p1" force="true" /><!-- Mục lục số -->
+					<show id="la:fo1p2" force="true" /><!-- Chú giải -->
+					<show id="la:fo1p3" force="true" /><!-- Thời gian bắt đầu -->
+					<show id="la:fo1p4" force="true" /><!-- Thời gian kết thúc -->
+					<show id="la:fo1p5" force="true" /><!-- Ngôn ngữ -->
+					<show id="la:fo1p6" force="true" /><!-- Bút tích -->
+					<show id="la:fo1p41" force="true" /><!-- Số lượng tờ -->
+					<show id="la:fo1p7" force="true" /><!-- Thời hạn bảo quản -->
+					<show id="la:fo1p8" force="true" /><!-- Chế độ sử dụng -->
+					<show id="la:fo1p9" force="true" /><!-- Tình trạng vật lý -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Hồ sơ số">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Ký hiệu thông tin">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Tiêu đề hồ sơ" mandatory="true">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p1">
+						<control
+							template="/org/alfresco/components/form/controls/cascadeselect.ftl">
+							<control-param name="ds">/share/proxy/alfresco/select/combobox/muclucso
+							</control-param>
+						</control>
+					</field>
+					<field id="la:fo1p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+
+					<field id="la:fo1p9">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+
+				</appearance>
+			</form>
+			<form id="search">
+				<field-visibility>
+					<show id="searchInFolder" force="true" />
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo1p1" force="true" /><!-- Mục lục số -->
+					<show id="la:fo1p2" force="true" /><!-- Chú giải -->
+					<show id="la:fo1p3" force="true" /><!-- Thời gian bắt đầu -->
+					<show id="la:fo1p4" force="true" /><!-- Thời gian kết thúc -->
+					<show id="la:fo1p5" force="true" /><!-- Ngôn ngữ -->
+					<show id="la:fo1p6" force="true" /><!-- Bút tích -->
+					<show id="la:fo1p41" force="true" /><!-- Số lượng tờ -->
+					<show id="la:fo1p7" force="true" /><!-- Thời hạn bảo quản -->
+					<show id="la:fo1p8" force="true" /><!-- Chế độ sử dụng -->
+					<show id="la:fo1p9" force="true" /><!-- Tình trạng vật lý -->
+
+				</field-visibility>
+				<appearance>
+					<field id="searchInFolder" label="Tìm trong thư mục">
+						<control template="/org/alfresco/components/form/controls/association.ftl" />
+					</field>
+					<field id="cm:name" label="Hồ sơ số">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Ký hiệu thông tin">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Tiêu đề hồ sơ">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p1">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p3">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p4">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p5">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p6">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p7">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p8">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo1p9">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo1p41">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<!-- End hồ sơ -->
+
+	<!-- Hộp số -->
+	<config evaluator="node-type" condition="la:fo2">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên hộp -->
+					<show id="la:fo2p1" /><!-- Số hồ sơ bắt đầu -->
+					<show id="la:fo2p2" /><!-- Số hồ sơ kết thúc -->
+
+					<show id="la:fo2p41" /><!-- Số lượng hồ sơ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên hộp">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên hộp -->
+					<show id="la:fo2p1" /><!-- Số hồ sơ bắt đầu -->
+					<show id="la:fo2p2" /><!-- Số hồ sơ kết thúc -->
+
+					<show id="la:fo2p41" /><!-- Số lượng hồ sơ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên hộp">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên hộp -->
+					<show id="la:fo2p1" /><!-- Số hồ sơ bắt đầu -->
+					<show id="la:fo2p2" /><!-- Số hồ sơ kết thúc -->
+
+					<show id="la:fo2p41" /><!-- Số lượng hồ sơ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên hộp">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="model-type" condition="la:fo2">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên hộp -->
+					<show id="la:fo2p1" force="true" />
+					<show id="la:fo2p2" force="true" />
+
+					<show id="la:fo2p41" force="true" />
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên hộp">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo2p1">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo2p2">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+
+					<field id="la:fo2p41">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+
+				</appearance>
+			</form>
+			<form id="search">
+				<field-visibility>
+					<show id="searchInFolder" force="true" />
+					<show id="cm:name" /><!-- Tên hộp -->
+					<show id="la:fo2p1" force="true" />
+					<show id="la:fo2p2" force="true" />
+
+					<show id="la:fo2p41" force="true" />
+
+				</field-visibility>
+				<appearance>
+					<field id="searchInFolder" label="Tìm trong thư mục">
+						<control template="/org/alfresco/components/form/controls/association.ftl" />
+					</field>
+					<field id="cm:name" label="Tên hộp">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo2p1">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo2p2">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+
+					<field id="la:fo2p41">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<!-- End hộp số -->
+
+	<!-- Phông -->
+	<config evaluator="node-type" condition="la:fo3">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="la:fo3p1" /><!-- Thời gian tài liệu -->
+					<show id="la:fo3p56" /><!-- Tổng số tài liệu -->
+					<show id="la:fo3p41" /><!-- Số tài liệu đã chỉnh lý -->
+					<show id="la:fo3p57" /><!-- Số tài liệu chưa chỉnh lý -->
+					<show id="la:fo3p2" /><!-- Các nhóm tài liệu chủ yếu -->
+					<show id="la:fo3p3" /><!-- Các loại hình tài liệu khác -->
+					<show id="la:fo3p4" /><!-- Ngôn ngữ -->
+					<show id="la:fo3p5" /><!-- Thời gian nhập tài liệu -->
+					<show id="la:fo3p6" /><!-- Công cụ tra cứu -->
+					<show id="la:fo3p7" /><!-- Lập bản sao bảo hiểm -->
+					<show id="la:fo3p8" /><!-- Ghi chú -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Lịch sử đơn vị hình thành phông">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p3">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p6">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p8">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="la:fo3p1" /><!-- Thời gian tài liệu -->
+					<show id="la:fo3p56" /><!-- Tổng số tài liệu -->
+					<show id="la:fo3p41" /><!-- Số tài liệu đã chỉnh lý -->
+					<show id="la:fo3p57" /><!-- Số tài liệu chưa chỉnh lý -->
+					<show id="la:fo3p2" /><!-- Các nhóm tài liệu chủ yếu -->
+					<show id="la:fo3p3" /><!-- Các loại hình tài liệu khác -->
+					<show id="la:fo3p4" /><!-- Ngôn ngữ -->
+					<show id="la:fo3p5" /><!-- Thời gian nhập tài liệu -->
+					<show id="la:fo3p6" /><!-- Công cụ tra cứu -->
+					<show id="la:fo3p7" /><!-- Lập bản sao bảo hiểm -->
+					<show id="la:fo3p8" /><!-- Ghi chú -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Lịch sử đơn vị hình thành phông">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p3">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p6">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p8">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" />
+					<show id="cm:title" force="true" />
+					<show id="cm:description" force="true" />
+					<show id="la:fo3p1" /><!-- Thời gian tài liệu -->
+					<show id="la:fo3p56" /><!-- Tổng số tài liệu -->
+					<show id="la:fo3p41" /><!-- Số tài liệu đã chỉnh lý -->
+					<show id="la:fo3p57" /><!-- Số tài liệu chưa chỉnh lý -->
+					<show id="la:fo3p2" /><!-- Các nhóm tài liệu chủ yếu -->
+					<show id="la:fo3p3" /><!-- Các loại hình tài liệu khác -->
+					<show id="la:fo3p4" /><!-- Ngôn ngữ -->
+					<show id="la:fo3p5" /><!-- Thời gian nhập tài liệu -->
+					<show id="la:fo3p6" /><!-- Công cụ tra cứu -->
+					<show id="la:fo3p7" /><!-- Lập bản sao bảo hiểm -->
+					<show id="la:fo3p8" /><!-- Ghi chú -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Lịch sử đơn vị hình thành phông">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p3">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p6">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p8">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="model-type" condition="la:fo3">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo3p1" force="true" />
+					<show id="la:fo3p56" force="true" />
+					<show id="la:fo3p41" force="true" />
+					<show id="la:fo3p57" force="true" />
+					<show id="la:fo3p2" force="true" />
+					<show id="la:fo3p3" force="true" />
+					<show id="la:fo3p4" force="true" />
+					<show id="la:fo3p5" force="true" />
+					<show id="la:fo3p6" force="true" />
+					<show id="la:fo3p7" force="true" />
+					<show id="la:fo3p8" force="true" />
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Lịch sử đơn vị hình thành phông">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+
+					<field id="la:fo3p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p3">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+
+					<field id="la:fo3p6">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+
+					<field id="la:fo3p8">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<form id="search">
+				<field-visibility>
+					<show id="searchInFolder" force="true" />
+					<show id="cm:name" /><!-- Hồ sơ số -->
+					<show id="cm:title" force="true" /><!-- Ký hiệu thông tin -->
+					<show id="cm:description" force="true" /><!-- Tiêu đề hồ sơ -->
+					<show id="la:fo3p1" force="true" />
+					<show id="la:fo3p56" force="true" />
+					<show id="la:fo3p41" force="true" />
+					<show id="la:fo3p57" force="true" />
+					<show id="la:fo3p2" force="true" />
+					<show id="la:fo3p3" force="true" />
+					<show id="la:fo3p4" force="true" />
+					<show id="la:fo3p5" force="true" />
+					<show id="la:fo3p6" force="true" />
+					<show id="la:fo3p7" force="true" />
+					<show id="la:fo3p8" force="true" />
+
+				</field-visibility>
+				<appearance>
+					<field id="searchInFolder" label="Tìm trong thư mục">
+						<control template="/org/alfresco/components/form/controls/association.ftl" />
+					</field>
+					<field id="cm:name" label="Tên phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã phông/công trình/sưu tập lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Lịch sử đơn vị hình thành phông">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p1">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo3p2">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p3">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p4">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo3p5">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo3p6">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="la:fo3p7">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="la:fo3p8">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+
+					<field id="la:fo3p41">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+
+					<field id="la:fo3p56">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+					<field id="la:fo3p57">
+						<control template="/org/alfresco/components/form/controls/number.ftl" />
+					</field>
+
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<!-- End phông -->
+
+	<!-- Cơ quan lưu trữ -->
+	<config evaluator="node-type" condition="la:fo4">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên cơ quan lưu trữ -->
+					<show id="cm:title" force="true" /><!-- Mã cơ quan lưu trữ -->
+					<show id="cm:description" force="true" /><!-- Địa chỉ liên hệ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Địa chỉ liên hệ">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library pop-up Edit Metadata form -->
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên cơ quan lưu trữ -->
+					<show id="cm:title" force="true" /><!-- Mã cơ quan lưu trữ -->
+					<show id="cm:description" force="true" /><!-- Địa chỉ liên hệ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Địa chỉ liên hệ">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<!-- Document Library Inline Edit form -->
+			<form id="doclib-inline-edit">
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên cơ quan lưu trữ -->
+					<show id="cm:title" force="true" /><!-- Mã cơ quan lưu trữ -->
+					<show id="cm:description" force="true" /><!-- Địa chỉ liên hệ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Địa chỉ liên hệ">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="model-type" condition="la:fo4">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="cm:name" /><!-- Tên cơ quan lưu trữ -->
+					<show id="cm:title" force="true" /><!-- Mã cơ quan lưu trữ -->
+					<show id="cm:description" force="true" /><!-- Địa chỉ liên hệ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="cm:name" label="Tên cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Địa chỉ liên hệ">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+			<form id="search">
+				<field-visibility>
+					<show id="searchInFolder" force="true" />
+					<show id="cm:name" /><!-- Tên cơ quan lưu trữ -->
+					<show id="cm:title" force="true" /><!-- Mã cơ quan lưu trữ -->
+					<show id="cm:description" force="true" /><!-- Địa chỉ liên hệ -->
+
+				</field-visibility>
+				<appearance>
+					<field id="searchInFolder" label="Tìm trong thư mục">
+						<control template="/org/alfresco/components/form/controls/association.ftl" />
+					</field>
+					<field id="cm:name" label="Tên cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:title" label="Mã cơ quan lưu trữ">
+						<control template="/org/alfresco/components/form/controls/textfield.ftl" />
+					</field>
+					<field id="cm:description" label="Địa chỉ liên hệ">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<!-- End cơ quan lưu trữ -->
+</alfresco-config>
